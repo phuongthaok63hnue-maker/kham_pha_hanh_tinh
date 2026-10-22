@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Khám Phá Hành Tinh - Toán Lớp 1</title>
+    <style>
+        :root {
+            --space-bg: #0b0b1a;
+            --space-dark: #05050a;
+            --planet-1: #FF5722;
+            --planet-2: #9C27B0;
+            --planet-3: #4CAF50;
+            --planet-4: #03A9F4;
+            --accent: #FFC107;
+            --correct: #4CAF50;
+            --wrong: #F44336;
+        }
+
+        /* Reset chuẩn, không cấm user-select để không làm tê liệt cảm ứng iOS */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            background-color: #05050a;
+            color: #ffffff;
+            overflow: hidden;
+            overscroll-behavior: none;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* iOS Safari: use the visible viewport and respect the notch/home indicator. */
+        body {
+            min-height: 100%;
+            min-height: -webkit-fill-available;
+            touch-action: manipulation;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        @supports (-webkit-touch-callout: none) {
+            #game-container {
+                height: 100vh;
+                height: 100dvh;
+                min-height: -webkit-fill-available;
+            }
+            .screen {
+                padding-top: max(20px, env(safe-area-inset-top));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+            .game-area {
+                padding-top: max(70px, calc(env(safe-area-inset-top) + 55px));
+                padding-bottom: max(85px, calc(env(safe-area-inset-bottom) + 70px));
+            }
+        }
+
+        @media (max-height: 700px) {
+            .screen { padding: 12px; }
+            .title { margin-bottom: 6px; }
+            .game-area { padding-top: 58px; padding-bottom: 76px; }
+            .question-box { margin-bottom: 14px; padding: 10px 16px; }
+            .btn { padding: 12px 16px; margin: 7px auto; }
+        }
+
+        @media (max-width: 380px) {
+            .stats { gap: 8px; font-size: 14px; }
+            .top-bar { padding-left: 10px; padding-right: 10px; }
+            .options-grid { gap: 9px; }
+            .choice-btn { width: clamp(54px, 17vw, 72px); height: clamp(54px, 17vw, 72px); }
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            max-width: 900px;
+            margin: 0 auto;
+            background: radial-gradient(circle at center, #181836 0%, #05050a 100%);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Các màn hình: điều khiển trực tiếp bằng style.display */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(11, 11, 26, 0.96);
+            z-index: 10;
+        }
+
+        #game-screen {
+            background: transparent;
+            z-index: 5;
+        }
+
+        .title {
+            font-size: clamp(24px, 5.5vw, 44px);
+            color: var(--accent);
+            text-shadow: 0 0 14px rgba(255, 193, 7, 0.6);
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 900;
+        }
+
+        /* Nút bấm chuẩn HTML cho iPhone */
+        .btn {
+            display: block;
+            width: 85%;
+            max-width: 280px;
+            padding: 15px 20px;
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+            color: #05050a;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            border: 2px solid #FFF8E1;
+            border-radius: 30px;
+            box-shadow: 0 4px 0 #FF8F00;
+            margin: 10px auto;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #FF8F00;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: max(env(safe-area-inset-top), 10px) 16px 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            font-size: clamp(15px, 4vw, 20px);
+            font-weight: bold;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            color: white;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 60px 15px 90px 15px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .round-tag {
+            color: #4DD0E1;
+            font-size: clamp(13px, 3.5vw, 16px);
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .question-box {
+            background: #ffffff;
+            padding: 12px 24px;
+            border-radius: 18px;
+            font-size: clamp(24px, 6vw, 42px);
+            font-weight: 900;
+            color: #111;
+            border: 4px solid var(--accent);
+            margin-bottom: 22px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .drop-slot {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: clamp(50px, 13vw, 75px);
+            height: clamp(50px, 13vw, 75px);
+            border: 3px dashed #888;
+            border-radius: 12px;
+            background: #eef2f5;
+            color: #111;
+            font-size: clamp(20px, 5.5vw, 36px);
+            font-weight: 900;
+        }
+
+        .drop-slot.filled {
+            border-style: solid;
+            border-color: var(--planet-4);
+            background: var(--planet-4);
+            color: white;
+        }
+
+        .options-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .choice-btn {
+            background: #ffffff;
+            border: 3px solid var(--planet-4);
+            border-radius: 16px;
+            font-size: clamp(20px, 5.5vw, 32px);
+            font-weight: 900;
+            color: #111;
+            width: clamp(60px, 18vw, 90px);
+            height: clamp(60px, 18vw, 90px);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 0 #0288D1;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .choice-btn:active {
+            transform: scale(0.95);
+        }
+
+        .choice-btn.correct, .drop-slot.correct {
+            background: var(--correct) !important;
+            border-color: #FFF !important;
+            color: #FFF !important;
+            box-shadow: 0 4px 0 #2E7D32 !important;
+        }
+
+        .choice-btn.wrong, .drop-slot.wrong {
+            background: var(--wrong) !important;
+            border-color: #FFF !important;
+            color: #FFF !important;
+            box-shadow: 0 4px 0 #C62828 !important;
+        }
+
+        .progress-map {
+            position: absolute;
+            bottom: max(env(safe-area-inset-bottom), 16px);
+            left: 10%;
+            width: 80%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .planet-node {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #555;
+            border: 2px solid #FFF;
+            z-index: 6;
+            transition: all 0.3s;
+        }
+
+        .planet-node.reached { box-shadow: 0 0 10px #FFF; }
+        .planet-node:nth-child(1).reached { background: var(--planet-1); }
+        .planet-node:nth-child(2).reached { background: var(--planet-2); }
+        .planet-node:nth-child(3).reached { background: var(--planet-3); }
+        .planet-node:nth-child(4).reached { background: var(--planet-4); }
+
+        #spaceship {
+            position: absolute;
+            bottom: -15px;
+            left: 0%;
+            width: 36px;
+            height: 36px;
+            transition: left 0.5s ease;
+            z-index: 10;
+        }
+
+        .feedback-message {
+            position: absolute;
+            top: 18%;
+            font-size: clamp(20px, 5.5vw, 34px);
+            font-weight: 900;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 50;
+            text-shadow: 2px 2px 0 #000;
+            pointer-events: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .feedback-message.show { opacity: 1; }
+
+        .sort-container {
+            display: flex;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .sort-slot {
+            width: clamp(60px, 18vw, 90px);
+            height: clamp(60px, 18vw, 90px);
+            border: 2px dashed #fff;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Banner cảnh báo nếu iPhone đang mở file trong trình xem thử (QuickLook) bị chặn JS */
+        #quicklook-notice {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #d32f2f;
+            color: #ffffff;
+            padding: 12px;
+            font-size: 13px;
+            text-align: center;
+            z-index: 9999;
+            box-sizing: border-box;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+<div id="game-container">
+    <!-- Cảnh báo nếu JavaScript bị vô hiệu hóa hoàn toàn -->
+    <noscript>
+        <div style="position:fixed; top:0; left:0; width:100%; background:#d32f2f; color:#fff; padding:15px; text-align:center; z-index:99999; font-size:14px; font-weight:bold;">
+            ⚠️ iPhone đang chặn JavaScript! Hãy bấm nút "Chia sẻ" (biểu tượng vuông có mũi tên lên) và chọn "Mở bằng Safari" để chơi.
+        </div>
+    </noscript>
+
+    <!-- MÀN HÌNH BẮT ĐẦU -->
+    <div id="start-screen" class="screen" style="display: flex;">
+        <h1 class="title">KHÁM PHÁ HÀNH TINH</h1>
+        <h2 style="font-size: clamp(14px, 3.5vw, 18px); margin-bottom: 20px; text-align: center; color: #eee;">Toán Lớp 1: Phép cộng trong phạm vi 10</h2>
+        
+        <svg viewBox="0 0 200 200" width="110" height="110" style="margin-bottom: 20px;">
+            <circle cx="100" cy="100" r="55" fill="#FF9800" />
+            <ellipse cx="100" cy="100" rx="85" ry="20" fill="none" stroke="#FFC107" stroke-width="5" transform="rotate(-20 100 100)"/>
+        </svg>
+
+        <button class="btn" id="btn-start" type="button">BẮT ĐẦU CHƠI</button>
+        <button class="btn" id="btn-show-instructions" type="button" style="background: #4DD0E1;">HƯỚNG DẪN</button>
+    </div>
+    
+    <!-- MÀN HÌNH HƯỚNG DẪN -->
+    <div id="instruction-screen" class="screen" style="display: none;">
+        <h1 class="title">HƯỚNG DẪN</h1>
+        <div style="font-size: clamp(14px, 3.5vw, 18px); text-align: center; max-width: 90%; background: rgba(0,0,0,0.6); padding: 18px; border-radius: 16px; margin-bottom: 20px; line-height: 1.6; color: #fff;">
+            <p>🚀 <strong>Chào phi hành gia nhí!</strong></p>
+            <p style="margin-top: 6px;">Chạm vào đáp án đúng bên dưới để giúp phi thuyền tiếp tục hành trình.</p>
+            <p style="color: var(--accent); margin-top: 8px;">Lần 1: 10đ | Lần 2: 7đ | Lần 3: 5đ</p>
+        </div>
+        <button class="btn" id="btn-back-start" type="button">QUAY LẠI</button>
+    </div>
+    
+    <!-- MÀN HÌNH CHƠI -->
+    <div id="game-screen" class="screen" style="display: none;">
+        <div class="top-bar">
+            <div class="stats">
+                <div>Câu: <span id="ui-qnum">1</span>/<span id="ui-total">16</span></div>
+                <div style="color: var(--accent);">Điểm: <span id="ui-score">0</span></div>
+            </div>
+            <div>
+                <button class="icon-btn" id="btn-sound" type="button">🔊</button>
+            </div>
+        </div>
+        
+        <div class="feedback-message" id="feedback-msg"></div>
+        <div class="game-area" id="question-container"></div>
+        
+        <div class="progress-map">
+            <div class="planet-node reached"></div>
+            <div class="planet-node"></div>
+            <div class="planet-node"></div>
+            <div class="planet-node"></div>
+            <svg id="spaceship" viewBox="0 0 100 100">
+                <path d="M50,10 C50,10 80,40 80,70 C80,90 20,90 20,70 C20,40 50,10 50,10 Z" fill="#E0E0E0"/>
+                <path d="M50,10 C50,10 80,40 80,70 L50,85 L20,70 C20,40 50,10 50,10 Z" fill="#FFFFFF"/>
+                <circle cx="50" cy="50" r="12" fill="#2196F3" stroke="#1565C0" stroke-width="3"/>
+                <path d="M30,80 Q50,110 70,80 Q50,95 30,80" fill="#FF9800"/>
+            </svg>
+        </div>
+    </div>
+    
+    <!-- MÀN HÌNH KẾT THÚC -->
+    <div id="end-screen" class="screen" style="display: none;">
+        <h1 class="title" style="color: #4CAF50;">XUẤT SẮC!</h1>
+        <div style="font-size: clamp(22px, 5vw, 36px); margin-bottom: 10px; font-weight: bold; color:#fff;">Tổng điểm: <span id="final-score" style="color: var(--accent);">0</span></div>
+        <div style="font-size: clamp(16px, 3.8vw, 20px); margin-bottom: 20px; color:#ddd;">Số câu đúng: <span id="final-correct">0</span>/16</div>
+        <button class="btn" id="btn-restart" type="button">CHƠI LẠI</button>
+    </div>
+</div>
+
+<script>
+    // Gợi ý khi mở trong trình xem trước của ứng dụng trên iPhone:
+    // Hãy mở bằng Safari nếu các nút hoặc âm thanh bị chặn bởi trình xem trước.
+    // Dữ liệu câu hỏi chuẩn Toán 1
+    var QUESTIONS = [
+        // Vòng 1
+        { round: 1, type: 'select', title: "Vòng 1: Chọn đáp án đúng", prompt: "3 + 2 = ?", options: ["4", "5", "6", "7"], correctAnswer: "5" },
+        { round: 1, type: 'select', title: "Vòng 1: Chọn đáp án đúng", prompt: "4 + 1 + 3 = ?", options: ["6", "7", "8", "9"], correctAnswer: "8" },
+        { round: 1, type: 'select', title: "Vòng 1: Chọn đáp án đúng", prompt: "2 + 3 = ?", options: ["4", "5", "6", "7"], correctAnswer: "5" },
+        { round: 1, type: 'select', title: "Vòng 1: Chọn đáp án đúng", prompt: "1 + 3 + 4 = ?", options: ["6", "7", "8", "9"], correctAnswer: "8" },
+        // Vòng 2
+        { round: 2, type: 'fill', title: "Vòng 2: Chọn số thích hợp", prompt: "[ ] + 7 = 9", options: ["1", "2", "3", "4"], correctAnswer: "2" },
+        { round: 2, type: 'fill', title: "Vòng 2: Chọn số thích hợp", prompt: "5 + [ ] + 1 = 9", options: ["2", "3", "4", "5"], correctAnswer: "3" },
+        { round: 2, type: 'fill', title: "Vòng 2: Chọn số thích hợp", prompt: "[ ] + 2 + 2 = 8", options: ["2", "3", "4", "5"], correctAnswer: "4" },
+        { round: 2, type: 'fill', title: "Vòng 2: Chọn số thích hợp", prompt: "6 + [ ] = 6", options: ["0", "1", "2", "3"], correctAnswer: "0" },
+        // Vòng 3
+        { round: 3, type: 'fill', title: "Vòng 3: Điền dấu >, <, =", prompt: "3 + 2 [ ] 8", options: [">", "<", "="], correctAnswer: "<" },
+        { round: 3, type: 'fill', title: "Vòng 3: Điền dấu >, <, =", prompt: "3 + 3 [ ] 6", options: [">", "<", "="], correctAnswer: "=" },
+        { round: 3, type: 'fill', title: "Vòng 3: Điền dấu >, <, =", prompt: "5 + 3 + 1 [ ] 5", options: [">", "<", "="], correctAnswer: ">" },
+        { round: 3, type: 'fill', title: "Vòng 3: Điền dấu >, <, =", prompt: "4 + 2 + 2 [ ] 9", options: [">", "<", "="], correctAnswer: "<" },
+        // Vòng 4
+        { round: 4, type: 'sort', title: "Vòng 4: Sắp xếp", prompt: "BÉ đến LỚN", items: ["1 + 1", "6 + 0", "3 + 5", "2 + 7"], correctOrder: ["1 + 1", "6 + 0", "3 + 5", "2 + 7"] },
+        { round: 4, type: 'sort', title: "Vòng 4: Sắp xếp", prompt: "LỚN đến BÉ", items: ["2 + 7", "3 + 5", "6 + 0", "1 + 1"], correctOrder: ["2 + 7", "3 + 5", "6 + 0", "1 + 1"] },
+        { round: 4, type: 'sort', title: "Vòng 4: Sắp xếp", prompt: "BÉ đến LỚN", items: ["3 + 3", "2 + 5", "6 + 2", "5 + 4"], correctOrder: ["3 + 3", "2 + 5", "6 + 2", "5 + 4"] },
+        { round: 4, type: 'sort', title: "Vòng 4: Sắp xếp", prompt: "LỚN đến BÉ", items: ["5 + 4", "6 + 2", "2 + 5", "3 + 3"], correctOrder: ["5 + 4", "6 + 2", "2 + 5", "3 + 3"] }
+    ];
+
+    var FEEDBACKS = {
+        correct: ["Chính xác!", "Giỏi lắm!", "Tuyệt vời!", "Rất tốt!"],
+        wrong: ["Thử lại nhé!", "Gần đúng rồi!", "Quan sát kỹ hơn nhé!"]
+    };
+
+    var audioCtx = null;
+    var soundEnabled = true;
+
+    function playTone(freq, duration) {
+        if (!soundEnabled) return;
+        try {
+            var AudioCls = window.AudioContext || window.webkitAudioContext;
+            if (!audioCtx && AudioCls) {
+                audioCtx = new AudioCls();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            if (!audioCtx) return;
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    var state = {
+        questions: [],
+        currentIdx: 0,
+        score: 0,
+        correctCount: 0,
+        attempts: 0,
+        isAnswering: false
+    };
+
+    function shuffle(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = a[i]; a[i] = a[j]; a[j] = temp;
+        }
+        return a;
+    }
+
+    // Chuyển màn hình trực tiếp bằng style.display (Không phụ thuộc CSS class, 100% tin cậy)
+    function switchScreen(screenName) {
+        var allScreens = ['start', 'game', 'end', 'instruction'];
+        for (var i = 0; i < allScreens.length; i++) {
+            var el = document.getElementById(allScreens[i] + '-screen');
+            if (el) el.style.display = 'none';
+        }
+        var target = document.getElementById(screenName + '-screen');
+        if (target) target.style.display = 'flex';
+    }
+
+    function startGame() {
+        playTone(440, 0.1);
+        state.questions = shuffle(QUESTIONS);
+        state.currentIdx = 0;
+        state.score = 0;
+        state.correctCount = 0;
+        state.isAnswering = false;
+
+        var totalEl = document.getElementById('ui-total');
+        if (totalEl) totalEl.textContent = state.questions.length;
+
+        updateProgress();
+        switchScreen('game');
+        loadQuestion();
+    }
+
+    function updateProgress() {
+        var qnumEl = document.getElementById('ui-qnum');
+        var scoreEl = document.getElementById('ui-score');
+        var shipEl = document.getElementById('spaceship');
+
+        if (qnumEl) qnumEl.textContent = state.currentIdx + 1;
+        if (scoreEl) scoreEl.textContent = state.score;
+
+        if (shipEl && state.questions.length > 0) {
+            var progress = (state.currentIdx / state.questions.length) * 100;
+            shipEl.style.left = "calc(" + progress + "% - 18px)";
+        }
+
+        if (state.questions[state.currentIdx]) {
+            var r = state.questions[state.currentIdx].round;
+            var nodes = document.querySelectorAll('.planet-node');
+            for (var i = 0; i < nodes.length; i++) {
+                if (i < r) nodes[i].classList.add('reached');
+                else nodes[i].classList.remove('reached');
+            }
+        }
+    }
+
+    function showFeedback(type) {
+        var el = document.getElementById('feedback-msg');
+        if (!el) return;
+        var arr = type === 'correct' ? FEEDBACKS.correct : FEEDBACKS.wrong;
+        el.textContent = arr[Math.floor(Math.random() * arr.length)];
+        el.style.color = type === 'correct' ? 'var(--correct)' : 'var(--wrong)';
+        el.classList.remove('show');
+        void el.offsetWidth;
+        el.classList.add('show');
+        setTimeout(function() { el.classList.remove('show'); }, 1100);
+    }
+
+    function answer(isCorrect, element) {
+        if (state.isAnswering) return;
+
+        if (isCorrect) {
+            state.isAnswering = true;
+            playTone(523, 0.15);
+            setTimeout(function() { playTone(659, 0.25); }, 120);
+
+            state.score += (state.attempts === 0 ? 10 : (state.attempts === 1 ? 7 : 5));
+            state.correctCount++;
+            showFeedback('correct');
+            if (element) element.classList.add('correct');
+            updateProgress();
+
+            setTimeout(function() {
+                state.currentIdx++;
+                state.isAnswering = false;
+                loadQuestion();
+            }, 1200);
+        } else {
+            playTone(220, 0.2);
+            state.attempts++;
+            showFeedback('wrong');
+            if (element) {
+                element.classList.add('wrong');
+                setTimeout(function() { element.classList.remove('wrong'); }, 600);
+            }
+        }
+    }
+
+    function loadQuestion() {
+        var container = document.getElementById('question-container');
+        if (!container) return;
+
+        if (state.currentIdx >= state.questions.length) {
+            var finalScore = document.getElementById('final-score');
+            var finalCorrect = document.getElementById('final-correct');
+            if (finalScore) finalScore.textContent = state.score;
+            if (finalCorrect) finalCorrect.textContent = state.correctCount;
+            switchScreen('end');
+            return;
+        }
+
+        state.attempts = 0;
+        var q = state.questions[state.currentIdx];
+        container.innerHTML = '';
+        updateProgress();
+
+        var tag = document.createElement('div');
+        tag.className = 'round-tag';
+        tag.textContent = q.title || ("Vòng " + q.round);
+        container.appendChild(tag);
+
+        if (q.type === 'select') {
+            var qBox = document.createElement('div');
+            qBox.className = 'question-box';
+            qBox.textContent = q.prompt;
+
+            var grid = document.createElement('div');
+            grid.className = 'options-grid';
+
+            var opts = shuffle(q.options);
+            for (var i = 0; i < opts.length; i++) {
+                (function(opt) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'choice-btn';
+                    btn.style.cursor = 'pointer';
+                    btn.textContent = opt;
+                    btn.onclick = function() {
+                        answer(opt === q.correctAnswer, btn);
+                    };
+                    grid.appendChild(btn);
+                })(opts[i]);
+            }
+            container.appendChild(qBox);
+            container.appendChild(grid);
+        }
+        else if (q.type === 'fill') {
+            var qBox = document.createElement('div');
+            qBox.className = 'question-box';
+            var parts = q.prompt.split('[ ]');
+
+            qBox.appendChild(document.createTextNode(parts[0]));
+            var slot = document.createElement('div');
+            slot.className = 'drop-slot';
+            qBox.appendChild(slot);
+            if (parts[1]) qBox.appendChild(document.createTextNode(parts[1]));
+
+            var grid = document.createElement('div');
+            grid.className = 'options-grid';
+
+            var opts = shuffle(q.options);
+            for (var i = 0; i < opts.length; i++) {
+                (function(opt) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'choice-btn';
+                    btn.style.cursor = 'pointer';
+                    btn.textContent = opt;
+                    btn.onclick = function() {
+                        if (state.isAnswering) return;
+                        if (opt === q.correctAnswer) {
+                            slot.textContent = opt;
+                            slot.classList.add('filled', 'correct');
+                            btn.style.visibility = 'hidden';
+                            answer(true, slot);
+                        } else {
+                            answer(false, btn);
+                        }
+                    };
+                    grid.appendChild(btn);
+                })(opts[i]);
+            }
+            container.appendChild(qBox);
+            container.appendChild(grid);
+        }
+        else if (q.type === 'sort') {
+            var titleEl = document.createElement('div');
+            titleEl.style.cssText = 'color: #fff; font-size: clamp(15px, 3.8vw, 19px); font-weight: bold; margin-bottom: 12px; text-align: center;';
+            titleEl.textContent = 'Chạm chọn theo: ' + q.prompt;
+
+            var sortBox = document.createElement('div');
+            sortBox.className = 'sort-container';
+
+            var grid = document.createElement('div');
+            grid.className = 'options-grid';
+
+            var items = shuffle(q.items);
+            for (var i = 0; i < items.length; i++) {
+                var slot = document.createElement('div');
+                slot.className = 'sort-slot drop-slot';
+                sortBox.appendChild(slot);
+            }
+
+            var checkBtn = document.createElement('button');
+            checkBtn.type = 'button';
+            checkBtn.className = 'btn';
+            checkBtn.textContent = 'KIỂM TRA';
+            checkBtn.style.display = 'none';
+
+            for (var i = 0; i < items.length; i++) {
+                (function(val) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'choice-btn';
+                    btn.style.cursor = 'pointer';
+                    btn.style.touchAction = 'manipulation';
+                    btn.textContent = val;
+                    btn.dataset.val = val;
+                    btn.style.fontSize = 'clamp(14px, 3.5vw, 18px)';
+
+                    btn.onclick = function() {
+                        if (btn.parentElement === grid) {
+                            var slots = sortBox.children;
+                            var emptySlot = null;
+                            for (var s = 0; s < slots.length; s++) {
+                                if (slots[s].children.length === 0) {
+                                    emptySlot = slots[s];
+                                    break;
+                                }
+                            }
+                            if (emptySlot) {
+                                emptySlot.appendChild(btn);
+                                var full = true;
+                                for (var s = 0; s < slots.length; s++) {
+                                    if (slots[s].children.length === 0) { full = false; break; }
+                                }
+                                checkBtn.style.display = full ? 'block' : 'none';
+                            }
+                        } else {
+                            grid.appendChild(btn);
+                            checkBtn.style.display = 'none';
+                        }
+                    };
+                    grid.appendChild(btn);
+                })(items[i]);
+            }
+
+            checkBtn.onclick = function() {
+                var slots = sortBox.querySelectorAll('.sort-slot');
+                var userOrder = [];
+                for (var s = 0; s < slots.length; s++) {
+                    var child = slots[s].children[0];
+                    userOrder.push(child ? child.dataset.val : null);
+                }
+                var isCorrect = true;
+                for (var s = 0; s < q.correctOrder.length; s++) {
+                    if (userOrder[s] !== q.correctOrder[s]) { isCorrect = false; break; }
+                }
+
+                if (isCorrect) {
+                    checkBtn.style.display = 'none';
+                    for (var s = 0; s < slots.length; s++) {
+                        if (slots[s].children[0]) slots[s].children[0].classList.add('correct');
+                    }
+                    answer(true, slots[0]);
+                } else {
+                    for (var s = 0; s < slots.length; s++) {
+                        var child = slots[s].children[0];
+                        if (child && child.dataset.val !== q.correctOrder[s]) {
+                            (function(el) {
+                                el.classList.add('wrong');
+                                setTimeout(function() {
+                                    el.classList.remove('wrong');
+                                    grid.appendChild(el);
+                                    checkBtn.style.display = 'none';
+                                }, 600);
+                            })(child);
+                        }
+                    }
+                    answer(false, checkBtn);
+                }
+            };
+
+            container.appendChild(titleEl);
+            container.appendChild(sortBox);
+            container.appendChild(grid);
+            container.appendChild(checkBtn);
+        }
+    }
+
+    // Gán sự kiện click chuẩn trình duyệt
+    document.getElementById('btn-start').onclick = startGame;
+    document.getElementById('btn-show-instructions').onclick = function() { switchScreen('instruction'); };
+    document.getElementById('btn-back-start').onclick = function() { switchScreen('start'); };
+    document.getElementById('btn-restart').onclick = function() { switchScreen('start'); };
+    document.getElementById('btn-sound').onclick = function() {
+        soundEnabled = !soundEnabled;
+        document.getElementById('btn-sound').textContent = soundEnabled ? "🔊" : "🔇";
+    };
+</script>
+</body>
+</html>
