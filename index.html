@@ -10,24 +10,24 @@
             --hover: #45a049;
             --bg: #0f172a;
             --text: #ffffff;
-            --panel: rgba(30, 41, 59, 0.9);
+            --panel: rgba(30, 41, 59, 0.92);
             --star-color: #fcd34d;
         }
-        * { box-sizing: border-box; user-select: none; }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { 
             margin: 0; padding: 0; background-color: var(--bg); color: var(--text); 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            overflow: hidden; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; height: 100vh; width: 100vw;
+            overflow-x: hidden; overflow-y: auto; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; min-height: 100vh; min-height: 100dvh; width: 100vw;
         }
         
         /* SVG Space Background */
         .background {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
             background: radial-gradient(circle at 50% 100%, #1e1b4b, #0f172a);
         }
         .stars {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background-image: 
                 radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
                 radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
@@ -41,158 +41,204 @@
         }
         @keyframes stars { from { background-position: 0 0; } to { background-position: -10000px 5000px; } }
         
-        .screen { display: none; width: 100%; max-width: 1200px; height: 100%; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; padding: 20px;}
+        .screen { 
+            display: none; width: 100%; max-width: 1200px; min-height: 100vh; min-height: 100dvh;
+            flex-direction: column; align-items: center; justify-content: space-between; 
+            text-align: center; position: relative; padding: 16px 12px;
+        }
         .screen.active { display: flex; }
         
-        .title { font-size: 48px; font-weight: bold; color: var(--star-color); margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .subtitle { font-size: 24px; margin-bottom: 40px; color: #cbd5e1; }
+        .title { 
+            font-size: clamp(28px, 6vw, 48px); font-weight: bold; color: var(--star-color); 
+            margin-bottom: 12px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
+        }
+        .subtitle { 
+            font-size: clamp(16px, 3.5vw, 24px); margin-bottom: 24px; color: #cbd5e1; 
+        }
         
         .btn { 
-            padding: 15px 40px; font-size: 28px; cursor: pointer; border-radius: 50px; 
+            padding: 12px 30px; font-size: clamp(18px, 4vw, 26px); cursor: pointer; border-radius: 50px; 
             border: 3px solid #fff; background: var(--primary); color: white; font-weight: bold; 
-            box-shadow: 0 6px 0 #2e7d32, 0 10px 20px rgba(0,0,0,0.3); transition: all 0.1s;
-            margin: 10px; min-width: 200px;
+            box-shadow: 0 5px 0 #2e7d32, 0 8px 15px rgba(0,0,0,0.3); transition: all 0.1s;
+            margin: 8px; min-width: 160px;
         }
-        .btn:active { transform: translateY(6px); box-shadow: 0 0 0 #2e7d32; }
+        .btn:active { transform: translateY(5px); box-shadow: 0 0 0 #2e7d32; }
         
+        /* HUD Top Bar */
         .hud { 
-            position: absolute; top: 20px; left: 20px; right: 20px; display: flex; 
-            justify-content: space-between; font-size: 24px; font-weight: bold; z-index: 10;
-            background: var(--panel); padding: 10px 20px; border-radius: 20px; border: 2px solid #334155;
+            width: 100%; max-width: 900px; display: flex; 
+            justify-content: space-between; font-size: clamp(15px, 3.5vw, 22px); font-weight: bold; z-index: 10;
+            background: var(--panel); padding: 8px 16px; border-radius: 18px; border: 2px solid #334155;
+            margin-bottom: 12px;
+        }
+        
+        /* Game Main Area */
+        .game-main {
+            width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1;
         }
         
         .question-box {
-            background: var(--panel); border-radius: 20px; padding: 30px; border: 3px solid #475569;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; min-width: 60%;
+            background: var(--panel); border-radius: 20px; padding: clamp(14px, 3vw, 26px); border: 2px solid #475569;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5); margin-bottom: 14px; width: 100%; max-width: 850px;
         }
-        .prompt-text { font-size: 34px; font-weight: bold; margin-bottom: 15px; color: #f8fafc; }
-        .visual-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .group-box { display: flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.6); padding: 8px 14px; border-radius: 12px; border: 1px dashed #64748b; }
-        .star-icon { width: 32px; height: 32px; fill: #fcd34d; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
-        .symbol-text { font-size: 36px; font-weight: bold; color: #38bdf8; }
-        .expression { font-size: 60px; font-weight: bold; letter-spacing: 4px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;}
+        .prompt-text { 
+            font-size: clamp(18px, 4vw, 30px); font-weight: bold; margin-bottom: 12px; color: #f8fafc; line-height: 1.3;
+        }
+        .visual-container { 
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; 
+        }
+        .group-box { 
+            display: flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.6); 
+            padding: 6px 10px; border-radius: 10px; border: 1px dashed #64748b; 
+        }
+        .star-icon { 
+            width: clamp(22px, 5vw, 32px); height: clamp(22px, 5vw, 32px); fill: #fcd34d; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
+        }
+        .symbol-text { font-size: clamp(22px, 5vw, 34px); font-weight: bold; color: #38bdf8; }
+        
+        .expression { 
+            font-size: clamp(34px, 8vw, 56px); font-weight: bold; letter-spacing: 2px; 
+            display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+        }
         
         .drop-zone {
-            display: inline-block; width: 80px; height: 80px; border: 4px dashed var(--star-color);
-            border-radius: 15px; vertical-align: middle; background: rgba(0,0,0,0.4);
-            color: #fff; line-height: 72px; font-size: 48px; text-align: center;
+            display: inline-flex; width: clamp(55px, 12vw, 75px); height: clamp(55px, 12vw, 75px); 
+            border: 3px dashed var(--star-color); border-radius: 12px; vertical-align: middle; 
+            background: rgba(0,0,0,0.4); color: #fff; font-size: clamp(30px, 7vw, 44px); 
+            align-items: center; justify-content: center;
         }
         .drop-zone.filled { border-style: solid; background: #1e293b; }
         
-        .options-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+        .options-grid { 
+            display: flex; gap: clamp(8px, 2.5vw, 18px); justify-content: center; flex-wrap: wrap; 
+            margin-top: 6px; width: 100%; max-width: 850px;
+        }
         
         .draggable {
-            width: 80px; height: 80px; background: linear-gradient(135deg, #3b82f6, #2563eb); 
-            color: white; font-size: 48px; font-weight: bold; border-radius: 15px; 
+            width: clamp(55px, 14vw, 75px); height: clamp(55px, 14vw, 75px); 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            color: white; font-size: clamp(28px, 7vw, 42px); font-weight: bold; border-radius: 14px; 
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            border: 3px solid #60a5fa; box-shadow: 0 5px 0 #1d4ed8; transition: transform 0.2s;
+            border: 3px solid #60a5fa; box-shadow: 0 4px 0 #1d4ed8; transition: transform 0.15s;
         }
-        .draggable:active { transform: scale(0.95); }
-        .draggable.sortable { width: auto; padding: 0 20px; }
+        .draggable:active { transform: scale(0.92); }
+        .draggable.sortable { width: auto; min-width: clamp(55px, 14vw, 75px); padding: 0 clamp(10px, 3vw, 18px); }
         
         .sort-container {
-            display: flex; gap: 15px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: 2px solid #475569;
-            min-height: 120px; align-items: center; justify-content: center; margin-top: 20px;
+            display: flex; gap: 10px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; 
+            border: 2px solid #475569; min-height: 80px; align-items: center; justify-content: center; 
+            margin-top: 10px; flex-wrap: wrap; width: 100%;
         }
         
-        #feedback-msg { font-size: 28px; font-weight: bold; height: 35px; margin-top: 15px; color: var(--star-color); text-shadow: 1px 1px 2px #000; }
+        #feedback-msg { 
+            font-size: clamp(18px, 4vw, 26px); font-weight: bold; min-height: 32px; 
+            margin-top: 10px; color: var(--star-color); text-shadow: 1px 1px 2px #000; 
+        }
         
-        /* THANH HÀNH TRÌNH BỔ SUNG */
+        /* THANH HÀNH TRÌNH BỔ SUNG RESPONSIVE */
         .journey-container {
             position: relative;
-            width: 80%;
-            max-width: 900px;
-            height: 60px;
-            margin-top: 30px;
+            width: 90%;
+            max-width: 800px;
+            height: 46px;
+            margin: 10px 0;
             z-index: 5;
         }
         .journey-track-bg {
-            position: absolute; top: 50%; left: 0; width: 100%; height: 10px; 
-            background: #334155; border-radius: 5px; transform: translateY(-50%);
+            position: absolute; top: 50%; left: 0; width: 100%; height: 8px; 
+            background: #334155; border-radius: 4px; transform: translateY(-50%);
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
         .journey-track-fill {
-            position: absolute; top: 50%; left: 0; width: 0%; height: 10px;
-            background: linear-gradient(90deg, #38bdf8, #818cf8); border-radius: 5px;
+            position: absolute; top: 50%; left: 0; width: 0%; height: 8px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8); border-radius: 4px;
             transform: translateY(-50%); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 12px #38bdf8;
+            box-shadow: 0 0 10px #38bdf8;
         }
         .planet {
-            position: absolute; top: 50%; width: 50px; height: 50px; border-radius: 50%;
+            position: absolute; top: 50%; width: clamp(34px, 8vw, 44px); height: clamp(34px, 8vw, 44px); border-radius: 50%;
             transform: translate(-50%, -50%); border: 3px solid #1e293b;
-            box-shadow: 0 0 10px rgba(0,0,0,0.8); z-index: 2;
+            box-shadow: 0 0 8px rgba(0,0,0,0.8); z-index: 2;
             transition: all 0.4s ease;
         }
-        .planet.reached { border-color: #fcd34d; box-shadow: 0 0 25px #fcd34d; transform: translate(-50%, -50%) scale(1.2); }
+        .planet.reached { border-color: #fcd34d; box-shadow: 0 0 20px #fcd34d; transform: translate(-50%, -50%) scale(1.15); }
         .pl-1 { left: 25%; background: radial-gradient(circle at 30% 30%, #4ade80, #14532d); }
         .pl-2 { left: 50%; background: radial-gradient(circle at 30% 30%, #c084fc, #581c87); }
         .pl-3 { left: 75%; background: radial-gradient(circle at 30% 30%, #f472b6, #831843); }
         .pl-4 { left: 100%; background: radial-gradient(circle at 30% 30%, #fcd34d, #78350f); }
         
         .mini-ship-icon {
-            position: absolute; top: 50%; left: 0%; width: 55px; height: 55px;
+            position: absolute; top: 50%; left: 0%; width: clamp(36px, 9vw, 48px); height: clamp(36px, 9vw, 48px);
             transform: translate(-50%, -50%) rotate(90deg);
             z-index: 3; transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: drop-shadow(0 4px 5px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5));
         }
 
-        .controls { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 15px; align-items: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 30px;}
+        /* Controls Bottom Bar */
+        .controls { 
+            display: flex; gap: 10px; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 30px; 
+            margin-top: 6px; z-index: 10;
+        }
         .icon-btn { 
-            width: 50px; height: 50px; border-radius: 50%; border: 2px solid #fff; 
-            background: #334155; color: #fff; font-size: 24px; cursor: pointer;
+            width: clamp(40px, 9vw, 48px); height: clamp(40px, 9vw, 48px); border-radius: 50%; border: 2px solid #fff; 
+            background: #334155; color: #fff; font-size: clamp(18px, 4.5vw, 22px); cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
         .icon-btn:hover { background: #475569; }
         
         /* Volume Slider */
-        .volume-slider { width: 100px; cursor: pointer; }
+        .volume-slider { width: clamp(70px, 16vw, 100px); cursor: pointer; }
 
         /* Effects */
-        .celebration { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden; display: none; }
-        .star { position: absolute; width: 20px; height: 20px; background: var(--star-color); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .celebration { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; overflow: hidden; display: none; }
+        .star { position: absolute; width: 18px; height: 18px; background: var(--star-color); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
         @keyframes floatUp { 0% { transform: translateY(100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
 
-        /* MODAL HƯỚNG DẪN TRÒ CHƠI */
+        /* MODAL HƯỚNG DẪN TRÒ CHƠI RESPONSIVE */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(6px);
-            z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
+            background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(6px);
+            z-index: 200; display: none; align-items: center; justify-content: center; padding: 14px;
         }
         .modal-overlay.active { display: flex; }
         .modal-content {
             background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 3px solid #38bdf8; border-radius: 24px;
-            max-width: 650px; width: 95%; max-height: 85vh; overflow-y: auto;
-            padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 2px solid #38bdf8; border-radius: 20px;
+            max-width: 560px; width: 95%; max-height: 90vh; max-height: 90dvh; overflow-y: auto;
+            padding: clamp(14px, 3.5vw, 22px); box-shadow: 0 15px 40px rgba(0,0,0,0.8);
             text-align: left; color: #f8fafc;
         }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 16px;
+            border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 12px;
         }
-        .modal-title { font-size: 26px; font-weight: bold; color: var(--star-color); display: flex; align-items: center; gap: 8px; }
+        .modal-title { font-size: clamp(18px, 4vw, 22px); font-weight: bold; color: var(--star-color); display: flex; align-items: center; gap: 6px; }
         .close-btn {
-            background: #ef4444; border: 2px solid #fff; color: white; width: 38px; height: 38px;
-            border-radius: 50%; font-size: 20px; font-weight: bold; cursor: pointer;
+            background: #ef4444; border: 2px solid #fff; color: white; width: 34px; height: 34px;
+            border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-        .guide-section { margin-bottom: 16px; }
-        .guide-section h4 { font-size: 19px; color: #38bdf8; margin: 0 0 8px 0; }
-        .guide-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px; }
-        @media (max-width: 600px) { .guide-grid { grid-template-columns: 1fr; } }
+        .guide-section { margin-bottom: 12px; }
+        .guide-section h4 { font-size: clamp(15px, 3.5vw, 17px); color: #38bdf8; margin: 0 0 6px 0; }
+        .guide-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
+        @media (max-width: 480px) { 
+            .guide-grid { grid-template-columns: 1fr; } 
+            .hud { font-size: 14px; padding: 6px 12px; }
+        }
         .guide-card {
             background: rgba(30, 41, 59, 0.7); border: 1px solid #475569;
-            border-radius: 10px; padding: 10px 12px; font-size: 15px; line-height: 1.4;
+            border-radius: 10px; padding: 8px 10px; font-size: 14px; line-height: 1.35;
         }
-        .guide-card strong { color: #fcd34d; display: block; font-size: 16px; margin-bottom: 2px; }
+        .guide-card strong { color: #fcd34d; display: block; font-size: 14px; margin-bottom: 2px; }
         .scoring-compact {
-            display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; margin-top: 6px;
+            display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; margin-top: 4px;
         }
         .scoring-badge {
-            flex: 1; min-width: 140px; background: rgba(15, 23, 42, 0.8); border-radius: 10px;
-            padding: 8px 12px; text-align: center; border: 1px solid #334155;
+            flex: 1; min-width: 90px; background: rgba(15, 23, 42, 0.8); border-radius: 8px;
+            padding: 6px 8px; text-align: center; border: 1px solid #334155;
         }
-        .scoring-badge .num { font-size: 22px; font-weight: bold; display: block; }
+        .scoring-badge .num { font-size: clamp(16px, 4vw, 20px); font-weight: bold; display: block; }
     </style>
 </head>
 <body>
@@ -234,50 +280,52 @@
                 <h4>⭐ CÁCH TÍNH ĐIỂM</h4>
                 <div class="scoring-compact">
                     <div class="scoring-badge" style="border-color: #4ade80;">
-                        <span style="font-size: 14px; color: #cbd5e1;">Lần 1</span>
-                        <span class="num" style="color: #4ade80;">+10 điểm</span>
+                        <span style="font-size: 13px; color: #cbd5e1;">Lần 1</span>
+                        <span class="num" style="color: #4ade80;">+10đ</span>
                     </div>
                     <div class="scoring-badge" style="border-color: #38bdf8;">
-                        <span style="font-size: 14px; color: #cbd5e1;">Lần 2</span>
-                        <span class="num" style="color: #38bdf8;">+7 điểm</span>
+                        <span style="font-size: 13px; color: #cbd5e1;">Lần 2</span>
+                        <span class="num" style="color: #38bdf8;">+7đ</span>
                     </div>
                     <div class="scoring-badge" style="border-color: #fcd34d;">
-                        <span style="font-size: 14px; color: #cbd5e1;">Lần 3 trở đi</span>
-                        <span class="num" style="color: #fcd34d;">+5 điểm</span>
+                        <span style="font-size: 13px; color: #cbd5e1;">Lần 3 trở đi</span>
+                        <span class="num" style="color: #fcd34d;">+5đ</span>
                     </div>
                 </div>
-                <div style="font-size: 14px; color: #94a3b8; margin-top: 8px; text-align: center;">
-                    * Sai không bị trừ điểm. Mỗi câu đúng, tàu vũ trụ tiến thêm 1 nấc!
+                <div style="font-size: 13px; color: #94a3b8; margin-top: 6px; text-align: center;">
+                    * Sai không trừ điểm. Đúng thì tàu vũ trụ tiến thêm 1 nấc!
                 </div>
             </div>
             
-            <div style="text-align: center; margin-top: 16px;">
-                <button class="btn" style="min-width: 160px; padding: 8px 26px; font-size: 20px;" onclick="toggleGuide(false)">ĐÃ HIỂU</button>
+            <div style="text-align: center; margin-top: 12px;">
+                <button class="btn" style="min-width: 140px; padding: 8px 24px; font-size: 18px;" onclick="toggleGuide(false)">ĐÃ HIỂU</button>
             </div>
         </div>
     </div>
 
     <!-- MÀN HÌNH CHÍNH -->
     <div class="screen active" id="screen-start">
-        <svg width="220" height="220" viewBox="0 0 100 100" style="margin-bottom:20px; animation: bounce 2s infinite alternate;">
-            <path d="M50 10 C30 30 20 60 20 80 L30 80 L50 95 L70 80 L80 80 C80 60 70 30 50 10 Z" fill="#e2e8f0"/>
-            <path d="M50 10 C40 30 35 60 35 80 L50 95 L50 10 Z" fill="#cbd5e1"/>
-            <circle cx="50" cy="45" r="12" fill="#0f172a" border="2px solid #38bdf8"/>
-            <circle cx="50" cy="45" r="10" fill="#38bdf8"/>
-            <path d="M30 80 L20 100 L40 90 Z" fill="#ef4444"/>
-            <path d="M70 80 L80 100 L60 90 Z" fill="#ef4444"/>
-            <path d="M40 85 L50 105 L60 85 Z" fill="#fbbf24"/>
-        </svg>
-        <style>@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }</style>
-        
-        <div class="title">KHÁM PHÁ HÀNH TINH</div>
-        <div class="subtitle">Trò chơi Toán học - Phép cộng phạm vi 10</div>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-            <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
-            <button class="btn" style="background: #3b82f6; box-shadow: 0 6px 0 #1d4ed8;" onclick="toggleGuide(true)">📖 HƯỚNG DẪN</button>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <svg width="180" height="180" viewBox="0 0 100 100" style="margin-bottom:15px; animation: bounce 2s infinite alternate; max-width: 45vw; max-height: 45vw;">
+                <path d="M50 10 C30 30 20 60 20 80 L30 80 L50 95 L70 80 L80 80 C80 60 70 30 50 10 Z" fill="#e2e8f0"/>
+                <path d="M50 10 C40 30 35 60 35 80 L50 95 L50 10 Z" fill="#cbd5e1"/>
+                <circle cx="50" cy="45" r="12" fill="#0f172a" border="2px solid #38bdf8"/>
+                <circle cx="50" cy="45" r="10" fill="#38bdf8"/>
+                <path d="M30 80 L20 100 L40 90 Z" fill="#ef4444"/>
+                <path d="M70 80 L80 100 L60 90 Z" fill="#ef4444"/>
+                <path d="M40 85 L50 105 L60 85 Z" fill="#fbbf24"/>
+            </svg>
+            <style>@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-16px); } }</style>
+            
+            <div class="title">KHÁM PHÁ HÀNH TINH</div>
+            <div class="subtitle">Trò chơi Toán học - Phép cộng phạm vi 10</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
+                <button class="btn" style="background: #3b82f6; box-shadow: 0 5px 0 #1d4ed8;" onclick="toggleGuide(true)">📖 HƯỚNG DẪN</button>
+            </div>
         </div>
         
-        <div class="controls" style="position: static; margin-top: 30px;">
+        <div class="controls">
             <button class="icon-btn" onclick="toggleFullscreen()" title="Toàn màn hình">⛶</button>
             <button class="icon-btn" id="btn-music-start" onclick="toggleMusic()" title="Bật/Tắt Nhạc">🎵</button>
             <input type="range" id="vol-start" class="volume-slider" min="0" max="1" step="0.1" value="0.4" onchange="changeVolume(this.value)">
@@ -292,24 +340,19 @@
             <div>Điểm: <span id="hud-score">0</span></div>
         </div>
         
-        <div class="question-box">
-            <div class="prompt-text" id="question-prompt">Gộp lại bằng bao nhiêu?</div>
-            <div class="visual-container" id="question-visual" style="display:none;"></div>
-            <div class="expression" id="question-expression">
-                <!-- Nội dung câu hỏi sẽ được sinh ở đây -->
+        <div class="game-main">
+            <div class="question-box">
+                <div class="prompt-text" id="question-prompt">Gộp lại bằng bao nhiêu?</div>
+                <div class="visual-container" id="question-visual" style="display:none;"></div>
+                <div class="expression" id="question-expression"></div>
+                <div id="sort-zone" class="sort-container" style="display:none;"></div>
             </div>
             
-            <div id="sort-zone" class="sort-container" style="display:none;">
-                <!-- Dành cho vòng sắp xếp -->
-            </div>
+            <div class="options-grid" id="options-container"></div>
+            
+            <div id="feedback-msg"></div>
+            <button class="btn" id="btn-next" style="display:none; margin-top: 10px; background: #f59e0b; box-shadow: 0 5px 0 #b45309;" onclick="nextQuestion()">TIẾP TỤC ➔</button>
         </div>
-        
-        <div class="options-grid" id="options-container">
-            <!-- Các thẻ đáp án sẽ được sinh ở đây -->
-        </div>
-        
-        <div id="feedback-msg"></div>
-        <button class="btn" id="btn-next" style="display:none; margin-top: 15px; background: #f59e0b; box-shadow: 0 6px 0 #b45309;" onclick="nextQuestion()">TIẾP TỤC ➔</button>
 
         <!-- THANH HÀNH TRÌNH TÀU VŨ TRỤ -->
         <div class="journey-container">
@@ -340,11 +383,13 @@
 
     <!-- MÀN HÌNH KẾT THÚC -->
     <div class="screen" id="screen-end">
-        <div class="title">CHÚC MỪNG PHI HÀNH GIA!</div>
-        <div class="subtitle">Bạn đã khám phá thành công tất cả các hành tinh.</div>
-        <div style="font-size: 40px; margin: 20px; color: #4ade80;">Tổng điểm: <span id="final-score">0</span></div>
-        <div style="font-size: 28px; margin-bottom: 40px;">Số câu trả lời đúng ngay lần đầu: <span id="final-correct">0</span>/16</div>
-        <button class="btn" onclick="resetGame()">CHƠI LẠI</button>
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <div class="title">CHÚC MỪNG PHI HÀNH GIA!</div>
+            <div class="subtitle">Bạn đã khám phá thành công tất cả các hành tinh.</div>
+            <div style="font-size: clamp(28px, 6vw, 42px); margin: 15px; color: #4ade80; font-weight: bold;">Tổng điểm: <span id="final-score">0</span></div>
+            <div style="font-size: clamp(18px, 4vw, 26px); margin-bottom: 30px;">Số câu đúng ngay lần đầu: <span id="final-correct">0</span>/16</div>
+            <button class="btn" onclick="resetGame()">CHƠI LẠI</button>
+        </div>
     </div>
 
     <script>
@@ -356,13 +401,12 @@
             questionsPerRound: 4,
             points: { firstTry: 10, secondTry: 7, thirdTry: 5 },
             musicVolume: 0.4,
-            shuffle: false // ĐÃ TẮT XÁO TRỘN THEO YÊU CẦU
+            shuffle: false // CỐ ĐỊNH THỨ TỰ THEO ĐỘ KHÓ TĂNG DẦN
         };
 
-        // Danh sách 16 câu hỏi theo độ khó tăng dần từng vòng (Fixed sequence)
         const QUESTIONS = [
             // ==========================================
-            // VÒNG 1: KHÁM PHÁ HÀNH TINH XANH (Cơ bản - Nhận biết "gộp lại", "thêm vào" qua hình ảnh)
+            // VÒNG 1: KHÁM PHÁ HÀNH TINH XANH (Cơ bản - Trực quan)
             // ==========================================
             { 
                 id: 1, round: 1, type: "choose", 
@@ -397,7 +441,7 @@
             },
 
             // ==========================================
-            // VÒNG 2: VƯỢT THIÊN THẠCH HÀNH TINH TÍM (Vừa sức - Tìm số còn thiếu, biểu thức hai dấu cộng)
+            // VÒNG 2: VƯỢT THIÊN THẠCH HÀNH TINH TÍM (Vừa sức - Tìm số còn thiếu)
             // ==========================================
             { 
                 id: 5, round: 2, type: "drag", 
@@ -429,7 +473,7 @@
             },
 
             // ==========================================
-            // VÒNG 3: VƯỢT HỐ ĐEN HÀNH TINH HỒNG (Nâng cao nhẹ - So sánh giá trị các phép tính)
+            // VÒNG 3: VƯỢT HỐ ĐEN HÀNH TINH HỒNG (Nâng cao nhẹ - So sánh)
             // ==========================================
             { 
                 id: 9, round: 3, type: "compare", 
@@ -461,7 +505,7 @@
             },
 
             // ==========================================
-            // VÒNG 4: CHINH PHỤC HÀNH TINH VÀNG (Thử thách - Sắp xếp số và biểu thức tính nhẩm)
+            // VÒNG 4: CHINH PHỤC HÀNH TINH VÀNG (Thử thách - Sắp xếp)
             // ==========================================
             { 
                 id: 13, round: 4, type: "sort", 
@@ -506,40 +550,46 @@
         let answeredCorrectly = false;
         
         function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } catch(e) {
+                console.warn("Audio Context init error:", e);
             }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         function playSound(type) {
             if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            const now = audioCtx.currentTime;
-            if (type === 'correct') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.1);
-                osc.frequency.setValueAtTime(783.99, now + 0.2);
-                gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(GAME_CONFIG.musicVolume, now + 0.05);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                osc.start(now);
-                osc.stop(now + 0.5);
-            } else if (type === 'wrong') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.linearRampToValueAtTime(200, now + 0.3);
-                gain.gain.setValueAtTime(GAME_CONFIG.musicVolume * 0.8, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
-            }
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                const now = audioCtx.currentTime;
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(GAME_CONFIG.musicVolume, now + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(200, now + 0.3);
+                    gain.gain.setValueAtTime(GAME_CONFIG.musicVolume * 0.8, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {}
         }
 
         function toggleMusic() {
@@ -552,19 +602,21 @@
                 const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
                 let noteIdx = 0;
                 musicInterval = setInterval(() => {
-                    if(!isMusicPlaying || audioCtx.state !== 'running') return;
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = notes[noteIdx];
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                    gain.gain.linearRampToValueAtTime(GAME_CONFIG.musicVolume * 0.4, audioCtx.currentTime + 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.4);
-                    noteIdx = (noteIdx + 1) % notes.length;
+                    if(!isMusicPlaying || !audioCtx || audioCtx.state !== 'running') return;
+                    try {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = notes[noteIdx];
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                        gain.gain.linearRampToValueAtTime(GAME_CONFIG.musicVolume * 0.3, audioCtx.currentTime + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.4);
+                        noteIdx = (noteIdx + 1) % notes.length;
+                    } catch(e) {}
                 }, 400);
             } else {
                 clearInterval(musicInterval);
@@ -578,14 +630,17 @@
         }
 
         function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => console.log(err));
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
+            try {
+                if (!document.fullscreenElement) {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(err => console.log(err));
+                    }
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                }
+            } catch(e) {}
         }
 
-        // Bật / tắt bảng hướng dẫn và tính điểm
         function toggleGuide(show) {
             initAudio();
             const modal = document.getElementById('modal-guide');
@@ -603,14 +658,12 @@
             document.getElementById('screen-start').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
             
-            // Đặt lại hành trình
             document.getElementById('journey-fill').style.width = '0%';
             document.getElementById('mini-ship').style.left = '0%';
             for(let i=1; i<=4; i++) {
                 document.getElementById('planet-'+i).classList.remove('reached');
             }
 
-            // Đảm bảo thứ tự tuyệt đối cố định từ câu 1 đến câu 16 theo độ khó
             currentQuestions = JSON.parse(JSON.stringify(QUESTIONS));
             if (GAME_CONFIG.shuffle) {
                 currentQuestions.sort(() => Math.random() - 0.5);
@@ -637,7 +690,6 @@
             attemptsForCurrent = 0;
             answeredCorrectly = false;
             
-            // Hiển thị vòng tương ứng với tiến trình cố định (mỗi vòng đúng 4 câu)
             const currentRound = q.round;
             document.getElementById('hud-round').innerText = `${currentRound}/${GAME_CONFIG.totalRounds}`;
             document.getElementById('hud-question').innerText = `${currentQuestionIndex + 1}/${currentQuestions.length}`;
@@ -659,7 +711,6 @@
             sortZone.style.display = 'none';
             sortZone.innerHTML = '';
             
-            // Vẽ hình ảnh ngôi sao trực quan nếu câu hỏi có thuộc tính visual (đặc trưng Vòng 1)
             if (q.visual) {
                 visualContainer.style.display = 'flex';
                 const starSvg = `<svg class="star-icon" viewBox="0 0 24 24"><polygon points="12,2 15,8.5 22,9.3 17,14 18.5,21 12,17.3 5.5,21 7,14 2,9.3 9,8.5" /></svg>`;
@@ -681,7 +732,6 @@
                 exprContainer.style.display = 'none';
                 sortZone.style.display = 'flex';
                 let items = [...q.items];
-                // Khi không xáo trộn câu, chỉ đảo nhẹ vị trí 4 thẻ số ban đầu để học sinh có thao tác sắp xếp
                 items.sort(() => Math.random() - 0.5);
                 
                 items.forEach((item) => {
@@ -776,7 +826,6 @@
             score += pts;
             document.getElementById('hud-score').innerText = score;
             
-            // XỬ LÝ THANH HÀNH TRÌNH
             const totalQ = currentQuestions.length;
             const currentQNumber = currentQuestionIndex + 1;
             const progressPercent = (currentQNumber / totalQ) * 100;
@@ -784,19 +833,18 @@
             document.getElementById('journey-fill').style.width = progressPercent + '%';
             document.getElementById('mini-ship').style.left = progressPercent + '%';
             
-            // Kiểm tra xem đã qua 1 vòng chưa (thắp sáng hành tinh)
             const questionsPerRound = totalQ / GAME_CONFIG.totalRounds;
             if (currentQNumber % questionsPerRound === 0) {
                 const roundCompleted = currentQNumber / questionsPerRound;
                 if(roundCompleted <= 4) {
                     setTimeout(() => {
                         document.getElementById('planet-' + roundCompleted).classList.add('reached');
-                    }, 800); // Khớp với thời gian tàu bay
+                    }, 800);
                 }
             }
 
             const praise = PRAISE_WORDS[Math.floor(Math.random() * PRAISE_WORDS.length)];
-            document.getElementById('feedback-msg').innerText = `${praise} (+${pts} điểm)`;
+            document.getElementById('feedback-msg').innerText = `${praise} (+${pts}đ)`;
             document.getElementById('feedback-msg').style.color = '#4ade80';
             
             if(element) element.style.background = '#4ade80';
@@ -841,7 +889,7 @@
             const container = document.getElementById('celebration');
             container.style.display = 'block';
             container.innerHTML = '';
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 25; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + 'vw';
